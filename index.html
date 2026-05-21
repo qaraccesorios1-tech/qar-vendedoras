@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herramienta para Emprendedoras</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0E0818;--bg2:#160D24;--card:#1E1035;--card2:#261540;
+    --lila:#8B5CF6;--lila2:#6D3FD0;--lila-lt:#A78BFA;
+    --gold:#C9A84C;--goldd:#F5D770;--green:#34D399;--green2:#059669;
+    --white:#F5F0FF;--cream:#E9DFFF;--muted:#9D8AC0;--border:rgba(139,92,246,0.2);
+    --red:#F87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;padding:24px 16px 60px;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 80% 10%,rgba(109,63,208,0.25) 0%,transparent 50%),radial-gradient(ellipse at 10% 90%,rgba(52,211,153,0.08) 0%,transparent 50%);pointer-events:none;z-index:0;}
+  .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:28px;}
+  .logo-name{font-family:'DM Serif Display',serif;font-size:clamp(36px,9vw,54px);letter-spacing:4px;background:linear-gradient(135deg,var(--lila-lt),var(--goldd));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+  .logo-sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+  .header-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--lila),transparent);margin:12px auto 0;}
+
+  .sec-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--lila-lt);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px;}
+
+  /* PRODUCTO ROW */
+  .prod-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:10px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;}
+  .prod-row select{background:transparent;border:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:100%;}
+  .prod-row select option{background:#1E1035;}
+  .pzas-inp{width:55px;background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:7px 8px;color:var(--goldd);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;outline:none;text-align:center;}
+  .btn-remove{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);border-radius:4px;color:var(--red);width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .prod-info{grid-column:1/-1;font-size:11px;color:var(--muted);padding-top:2px;}
+  .prod-info span{color:var(--lila-lt);}
+
+  .btn-add{width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:6px;color:var(--lila-lt);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;margin-bottom:4px;}
+  .btn-add:hover{border-color:var(--lila);background:rgba(139,92,246,0.08);}
+
+  /* Total y nivel */
+  .total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card2);border-radius:6px;margin-top:8px;}
+  .nivel-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;}
+  .nivel-0{background:rgba(255,255,255,0.05);color:var(--muted);}
+  .nivel-1{background:rgba(201,168,76,0.15);color:var(--goldd);}
+  .nivel-2{background:rgba(52,211,153,0.15);color:var(--green);}
+
+  /* MODALIDAD */
+  .modal-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .mbtn{padding:12px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;text-align:center;}
+  .mbtn.active-lila{border-color:var(--lila);background:rgba(139,92,246,0.15);color:var(--lila-lt);}
+  .mbtn.active-gold{border-color:var(--gold);background:rgba(201,168,76,0.12);color:var(--goldd);}
+  .mbtn.active-green{border-color:var(--green);background:rgba(52,211,153,0.12);color:var(--green);}
+  .mbtn.disabled{opacity:0.35;cursor:not-allowed;border-color:var(--border);color:var(--muted);}
+
+  /* Descuento editable */
+  .desc-config{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:12px;}
+  .desc-config.visible{display:flex;align-items:center;gap:10px;}
+  .desc-config-label{font-size:11px;color:var(--muted);flex:1;}
+  .desc-inp{width:60px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:7px 8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;outline:none;text-align:center;color:var(--goldd);}
+  .desc-inp.green{color:var(--green);}
+
+  /* Preview en tiempo real */
+  .preview-box{background:var(--card2);border-radius:6px;padding:14px;margin-bottom:6px;}
+  .prev-precio{font-family:'DM Serif Display',serif;font-size:36px;text-align:center;}
+  .prev-precio.c-lila{color:var(--lila-lt);}
+  .prev-precio.c-gold{color:var(--goldd);}
+  .prev-precio.c-green{color:var(--green);}
+  .prev-sub{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;}
+  .prev-ahorro{font-size:12px;font-weight:600;color:var(--green);text-align:center;margin-top:6px;}
+
+  /* Alerta mayoreo */
+  .mayoreo-alerta{display:none;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:10px 14px;margin-top:8px;font-size:12px;color:var(--green);line-height:1.5;}
+
+  /* Banner grande mayoreo */
+  .mayoreo-banner{display:none;background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(5,150,105,0.1));border:2px solid rgba(52,211,153,0.6);border-radius:10px;padding:20px 16px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;animation:pulse-green 2s infinite;}
+  .mayoreo-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green),transparent);}
+  @keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0.3);}50%{box-shadow:0 0 20px 4px rgba(52,211,153,0.2);}}
+  .mb-icon{font-size:36px;margin-bottom:8px;}
+  .mb-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--green);margin-bottom:6px;}
+  .mb-sub{font-size:13px;color:var(--cream);margin-bottom:10px;}
+  .mb-precio{font-family:'DM Serif Display',serif;font-size:38px;color:var(--green);filter:drop-shadow(0 0 12px rgba(52,211,153,0.4));margin-bottom:4px;}
+  .mb-ahorro{display:inline-block;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.4);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;color:var(--green);}
+
+  .btn-calc{width:100%;padding:14px;background:linear-gradient(135deg,var(--lila2),var(--lila));border:none;border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:6px;}
+  .btn-calc:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(139,92,246,0.35);}
+
+  /* RESULTADOS */
+  #resultados{display:none;}
+  .result-hero{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid rgba(245,215,112,0.35);border-radius:8px;padding:28px 20px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden;}
+  .result-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--goldd),transparent);}
+  .rh-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--goldd);margin-bottom:8px;}
+  .rh-amount{font-family:'DM Serif Display',serif;font-size:clamp(52px,14vw,76px);color:var(--goldd);line-height:1;filter:drop-shadow(0 0 24px rgba(245,215,112,0.4));}
+  .rh-sub{font-size:13px;color:var(--muted);margin-top:6px;}
+  .rh-ahorro{display:inline-block;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);border-radius:20px;padding:5px 16px;font-size:13px;font-weight:600;color:var(--green);margin-top:10px;}
+
+  .detail-table{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .dt-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+  .dt-row:last-child{border-bottom:none;}
+  .dt-row.total{background:var(--card2);font-weight:600;font-size:14px;}
+  .dt-label{color:var(--muted);}
+  .dt-val{color:var(--white);font-weight:500;}
+  .dt-val.green{color:var(--green);} .dt-val.gold{color:var(--goldd);} .dt-val.lila{color:var(--lila-lt);}
+
+  /* Desglose productos */
+  .prod-breakdown{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .pb-header{display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;padding:9px 14px;background:var(--card2);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .pb-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;padding:10px 14px;border-top:1px solid var(--border);font-size:12px;align-items:center;}
+  .pb-name{color:var(--cream);font-weight:500;}
+  .pb-pzas{color:var(--lila-lt);}
+  .pb-precio{color:var(--goldd);font-weight:600;}
+  .pb-footer{display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;padding:10px 14px;border-top:1px solid rgba(52,211,153,0.2);background:rgba(52,211,153,0.05);font-size:13px;font-weight:600;}
+  .pb-footer .pb-name{color:var(--green);}
+  .pb-footer .pb-precio{color:var(--green);}
+
+  /* 2 pagos detalle */
+  .pagos-box{background:var(--card2);border:1px solid rgba(139,92,246,0.3);border-radius:6px;padding:14px;margin-bottom:14px;display:none;}
+  .pagos-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--lila-lt);margin-bottom:10px;}
+  .pago-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+  .pago-lbl{color:var(--muted);}
+  .pago-val{color:var(--white);font-weight:600;}
+
+  .tip{background:rgba(139,92,246,0.08);border-left:3px solid var(--lila);border-radius:0 6px 6px 0;padding:12px 14px;font-size:12px;line-height:1.6;color:var(--cream);margin-bottom:12px;}
+  .tip strong{color:var(--lila-lt);}
+  .tip.tg{border-left-color:var(--green);}
+  .tip.tg strong{color:var(--green);}
+
+  .btn-reset{width:100%;padding:11px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-transform:uppercase;}
+  .btn-reset:hover{border-color:var(--lila);color:var(--white);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo-name">✦</div>
+  <div class="logo-sub">Herramienta para Emprendedoras</div>
+  <div class="header-line"></div>
+</header>
+
+<div id="formulario">
+
+  <!-- PASO 1: PRODUCTOS -->
+  <div class="sec-title">Paso 1 — ¿Qué se lleva tu clienta?</div>
+  <div class="card">
+    <div id="prods-lista"></div>
+    <button class="btn-add" onclick="agregarProd()">+ Agregar otro producto</button>
+    <div class="total-row">
+      <span style="font-size:12px;color:var(--muted)">Total de la compra</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px;font-weight:600;color:var(--goldd)" id="total-compra">$0.00</span>
+        <span class="nivel-badge nivel-0" id="nivel-badge">Sin nivel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER MAYOREO -->
+  <div class="mayoreo-banner" id="banner-mayoreo">
+    <div class="mb-icon">🤝</div>
+    <div class="mb-title">¡Califica para Mayoreo!</div>
+    <div class="mb-sub">Su compra supera el mínimo — puedes ofrecerle precio de mayorista</div>
+    <div class="mb-precio" id="banner-precio">$0</div>
+    <div class="mb-ahorro" id="banner-ahorro">Se ahorra $0 vs precio normal</div>
+  </div>
+
+  <!-- PASO 2: MODALIDAD -->
+  <div class="sec-title">Paso 2 — ¿Cómo quiere pagar?</div>
+  <div class="card">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Toca la opción que elija tu clienta.</p>
+
+    <div class="modal-btns">
+      <button class="mbtn active-lila" id="btn-2p" onclick="setModalidad('2p')">💜 2 Pagos</button>
+      <button class="mbtn" id="btn-ct" onclick="setModalidad('ct')">⚡ Contado</button>
+      <button class="mbtn" id="btn-my" onclick="setModalidad('my')">🤝 Mayoreo</button>
+    </div>
+
+    <!-- Descuento contado -->
+    <div class="desc-config" id="cfg-ct">
+      <span class="desc-config-label">% de descuento que le das</span>
+      <input type="number" class="desc-inp" id="desc-ct" value="20" min="1" max="60" oninput="actualizar()">
+      <span style="color:var(--muted);font-size:13px">%</span>
+    </div>
+
+    <!-- Descuento mayoreo -->
+    <div class="desc-config" id="cfg-my">
+      <span class="desc-config-label">% de descuento que le das</span>
+      <input type="number" class="desc-inp green" id="desc-my" value="40" min="1" max="70" oninput="actualizar()">
+      <span style="color:var(--muted);font-size:13px">%</span>
+    </div>
+
+    <!-- Preview en tiempo real -->
+    <div class="preview-box">
+      <div class="prev-precio c-lila" id="prev-precio">$0.00</div>
+      <div class="prev-sub" id="prev-sub">Total a cobrar</div>
+      <div class="prev-ahorro" id="prev-ahorro" style="display:none"></div>
+    </div>
+
+    <!-- Alerta mayoreo -->
+    <div class="mayoreo-alerta" id="alerta-my">
+      <strong>🤝 ¡Esta clienta califica para precio mayoreo!</strong><br>
+      Está pagando más de $1,000. Puedes ofrecerle precio de mayorista con <span id="alerta-pct">50</span>% de descuento — ahorraría <strong id="alerta-ahorro">$0</strong> adicional.
+    </div>
+
+  </div>
+
+  <button class="btn-calc" onclick="calcular()">Ver resumen completo →</button>
+</div>
+
+<!-- RESULTADOS -->
+<div id="resultados">
+
+  <div class="result-hero">
+    <div class="rh-label" id="res-label">Total que cobras</div>
+    <div class="rh-amount" id="res-total">$0</div>
+    <div class="rh-sub" id="res-sub"></div>
+    <div class="rh-ahorro" id="res-ahorro" style="display:none"></div>
+  </div>
+
+  <!-- Desglose por producto -->
+  <div class="sec-title">Desglose por producto</div>
+  <div class="prod-breakdown">
+    <div class="pb-header" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+      <span>Producto</span><span>Pzas</span><span>C/U</span><span>Total</span>
+    </div>
+    <div id="pb-rows"></div>
+    <div class="pb-footer" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+      <span class="pb-name">TOTAL</span>
+      <span class="pb-pzas" id="pb-total-pzas">0</span>
+      <span class="pb-pzas">—</span>
+      <span class="pb-precio" id="pb-total-cobras">$0</span>
+    </div>
+  </div>
+
+  <!-- Detalle 2 pagos -->
+  <div class="pagos-box" id="pagos-box">
+    <div class="pagos-title">Cómo explicarle a tu clienta</div>
+    <div class="pago-row"><span class="pago-lbl">Total de la compra:</span><span class="pago-val" id="pag-total">$0</span></div>
+    <div class="pago-row"><span class="pago-lbl">Primer pago hoy:</span><span class="pago-val" id="pag-1">$0</span></div>
+    <div class="pago-row"><span class="pago-lbl">Segundo pago después:</span><span class="pago-val" style="color:var(--green)" id="pag-2">$0</span></div>
+  </div>
+
+  <div class="sec-title">Resumen</div>
+  <div class="detail-table">
+    <div class="dt-row"><span class="dt-label">Modalidad de pago</span><span class="dt-val lila" id="det-modal">2 Pagos</span></div>
+    <div class="dt-row"><span class="dt-label">Total piezas</span><span class="dt-val lila" id="det-pzas">0</span></div>
+    <div class="dt-row"><span class="dt-label">Precio normal (2 pagos)</span><span class="dt-val" id="det-normal">$0</span></div>
+    <div class="dt-row" id="det-ahorro-row" style="display:none"><span class="dt-label">Tu clienta ahorró</span><span class="dt-val green" id="det-ahorro">$0</span></div>
+    <div class="dt-row total"><span class="dt-label">Total que cobras</span><span class="dt-val gold" id="det-total">$0</span></div>
+  </div>
+
+  <div class="tip tg" id="tip-final">
+    <strong>✓ Recuerda:</strong> Todos estos productos tienen garantía de calidad. Disfrútalos con toda confianza.
+  </div>
+
+  <button class="btn-reset" onclick="resetear()">← Nueva venta</button>
+</div>
+
+</div>
+<script>
+const PRODS = {
+  aretes_vip:      {n:'Aretes VIP',       com:240},
+  aretes:          {n:'Aretes',           com:180},
+  pulseras:        {n:'Pulseras',         com:280},
+  pulseras_vip:    {n:'Pulseras VIP',     com:420},
+  pulseras_basicas:{n:'Pulseras Básicas', com:200},
+  juegos:          {n:'Juegos',           com:280},
+  juegos_top:      {n:'Juegos Top',       com:500},
+  juegos_vip:      {n:'Juegos VIP',       com:420},
+  anillos:         {n:'Anillos',          com:250},
+  anillos_vip:     {n:'Anillos VIP',      com:390},
+  cadenas:         {n:'Cadenas H&M',      com:280},
+  tobilleras:      {n:'Tobilleras',       com:280},
+  brazaletes_top:  {n:'Brazaletes Top',   com:500},
+  letras:          {n:'Letras',           com:200},
+};
+const OPTS = Object.entries(PRODS).map(([k,v])=>`<option value="${k}">${v.n} — $${v.com}</option>`).join('');
+let rowCount=0, modalidad='2p';
+
+function fmt(n){return '$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function agregarProd(key='aretes_vip',pzas=1){
+  const id=++rowCount;
+  const div=document.createElement('div');
+  div.id='pr-'+id;
+  div.innerHTML=`<div class="prod-row">
+    <select id="ps-${id}" onchange="actualizar()"><${OPTS}/select>
+    <input type="number" class="pzas-inp" id="pp-${id}" value="${pzas}" min="1" oninput="actualizar()">
+    <button class="btn-remove" onclick="quitarProd(${id})">✕</button>
+    <div class="prod-info" id="pi-${id}">Precio: <span>$0</span> · Total: <span>$0</span></div>
+  </div>`;
+  document.getElementById('prods-lista').appendChild(div);
+  document.getElementById('ps-'+id).value=key;
+  actualizar();
+}
+
+function quitarProd(id){
+  const el=document.getElementById('pr-'+id);
+  if(el) el.remove();
+  actualizar();
+}
+
+function setModalidad(m){
+  // Check if mayoreo is eligible before allowing
+  if(m==='my'){
+    const {totalNormal}=getTotales();
+    const descMy=parseFloat(document.getElementById('desc-my').value)||0;
+    const precioMy=totalNormal*(1-descMy/100);
+    if(precioMy<1000){
+      // Show feedback but don't change mode
+      const btn=document.getElementById('btn-my');
+      btn.textContent='🤝 Min $1,000';
+      setTimeout(()=>{ btn.textContent='🤝 Mayoreo'; },1500);
+      return;
+    }
+  }
+  modalidad=m;
+  ['2p','ct','my'].forEach(x=>{
+    document.getElementById('btn-'+x).className='mbtn';
+  });
+  document.getElementById('btn-'+m).className='mbtn active-'+(m==='2p'?'lila':m==='ct'?'gold':'green');
+  document.getElementById('cfg-ct').className='desc-config'+(m==='ct'?' visible':'');
+  document.getElementById('cfg-my').className='desc-config'+(m==='my'?' visible':'');
+  actualizar();
+}
+
+function getTotales(){
+  let totalNormal=0, totalPzas=0;
+  document.querySelectorAll('[id^="ps-"]').forEach(sel=>{
+    const id=sel.id.replace('ps-','');
+    const p=PRODS[sel.value];
+    const pzas=parseInt(document.getElementById('pp-'+id).value)||0;
+    totalNormal+=p.com*pzas;
+    totalPzas+=pzas;
+  });
+  return {totalNormal,totalPzas};
+}
+
+function actualizar(){
+  const {totalNormal,totalPzas}=getTotales();
+  const descCt=parseFloat(document.getElementById('desc-ct').value)||0;
+  const descMy=parseFloat(document.getElementById('desc-my').value)||0;
+
+  // Update each row info
+  document.querySelectorAll('[id^="ps-"]').forEach(sel=>{
+    const id=sel.id.replace('ps-','');
+    const p=PRODS[sel.value];
+    const pzas=parseInt(document.getElementById('pp-'+id).value)||0;
+    const info=document.getElementById('pi-'+id);
+    if(info) info.innerHTML=`Precio unitario: <span>$${p.com}</span> · Subtotal: <span>${fmt(p.com*pzas)}</span>`;
+  });
+
+  // Total y nivel - badge solo informa el total, mayoreo se evalua segun pago real
+  document.getElementById('total-compra').textContent=fmt(totalNormal);
+  const nb=document.getElementById('nivel-badge');
+  if(totalNormal>0){nb.className='nivel-badge nivel-1';nb.textContent=totalNormal>=1000?'Más de $1,000':'Menos de $1,000';}
+  else{nb.className='nivel-badge nivel-0';nb.textContent='Sin productos';}
+
+  // Preview según modalidad
+  let totalCobra=totalNormal, colorClass='c-lila', subTxt='Total a cobrar (2 pagos)', ahorro=0;
+  if(modalidad==='ct'){
+    totalCobra=totalNormal*(1-descCt/100);
+    colorClass='c-gold';
+    subTxt=`Total a cobrar (contado con ${descCt}% desc.)`;
+    ahorro=totalNormal-totalCobra;
+  } else if(modalidad==='my'){
+    totalCobra=totalNormal*(1-descMy/100);
+    colorClass='c-green';
+    subTxt=`Total a cobrar (mayoreo con ${descMy}% desc.)`;
+    ahorro=totalNormal-totalCobra;
+  }
+
+  document.getElementById('prev-precio').className='prev-precio '+colorClass;
+  document.getElementById('prev-precio').textContent=fmt(totalCobra);
+  document.getElementById('prev-sub').textContent=subTxt;
+
+  const pa=document.getElementById('prev-ahorro');
+  if(ahorro>0){pa.style.display='block';pa.textContent=`Tu clienta se ahorra ${fmt(ahorro)} vs precio normal`;}
+  else pa.style.display='none';
+
+  // Banner grande mayoreo
+  const precioMyCheck=totalNormal*(1-descMy/100);
+  const banner=document.getElementById('banner-mayoreo');
+  if(precioMyCheck>=1000){
+    banner.style.display='block';
+    document.getElementById('banner-precio').textContent=fmt(precioMyCheck);
+    document.getElementById('banner-ahorro').textContent=`Se ahorra ${fmt(totalNormal-precioMyCheck)} vs precio normal`;
+  } else {
+    banner.style.display='none';
+  }
+
+  // Actualizar estado botón mayoreo
+  const btnMy=document.getElementById('btn-my');
+  if(precioMyCheck<1000){
+    if(modalidad==='my'){ modalidad='2p'; document.getElementById('btn-2p').className='mbtn active-lila'; document.getElementById('btn-my').className='mbtn disabled'; }
+    else btnMy.className='mbtn disabled';
+    btnMy.title='Necesitas $1,000 mínimo en mayoreo';
+  } else {
+    if(modalidad!=='my') btnMy.className='mbtn';
+    btnMy.title='';
+  }
+
+  // Alerta mayoreo: solo si paga contado >= $1,000 Y el precio mayoreo tambien >= $1,000
+  const am=document.getElementById('alerta-my');
+  const precioMy=totalNormal*(1-descMy/100);
+  if(modalidad==='ct' && totalCobra>=1000 && precioMy>=1000){
+    am.style.display='block';
+    document.getElementById('alerta-pct').textContent=descMy;
+    const ahorroMy=totalCobra-precioMy;
+    document.getElementById('alerta-ahorro').textContent=fmt(ahorroMy>0?ahorroMy:0);
+  } else am.style.display='none';
+}
+
+function calcular(){
+  const {totalNormal,totalPzas}=getTotales();
+  if(!totalPzas){alert('Agrega al menos un producto');return;}
+  const descCt=parseFloat(document.getElementById('desc-ct').value)||0;
+  const descMy=parseFloat(document.getElementById('desc-my').value)||0;
+
+  let totalCobra=totalNormal, ahorro=0, modalLabel='2 Pagos', labelColor='gold';
+  if(modalidad==='ct'){totalCobra=totalNormal*(1-descCt/100);ahorro=totalNormal-totalCobra;modalLabel=`Contado (${descCt}% desc.)`;}
+  else if(modalidad==='my'){totalCobra=totalNormal*(1-descMy/100);ahorro=totalNormal-totalCobra;modalLabel=`Mayoreo (${descMy}% desc.)`;}
+
+  // Hero
+  document.getElementById('res-label').textContent='Total que cobras';
+  document.getElementById('res-total').textContent=fmt(totalCobra);
+  document.getElementById('res-sub').textContent=`${totalPzas} piezas · ${modalLabel}`;
+  const ra=document.getElementById('res-ahorro');
+  if(ahorro>0){ra.style.display='inline-block';ra.textContent=`Tu clienta ahorró ${fmt(ahorro)}`;}
+  else ra.style.display='none';
+
+  // Desglose productos
+  let pbHtml='', pbPzas=0, pbTotal=0;
+  document.querySelectorAll('[id^="ps-"]').forEach(sel=>{
+    const id=sel.id.replace('ps-','');
+    const p=PRODS[sel.value];
+    const pzas=parseInt(document.getElementById('pp-'+id).value)||0;
+    if(!pzas) return;
+    let precio=p.com;
+    if(modalidad==='ct') precio=p.com*(1-descCt/100);
+    else if(modalidad==='my') precio=p.com*(1-descMy/100);
+    const sub=precio*pzas;
+    pbPzas+=pzas; pbTotal+=sub;
+    const tieneDesc = modalidad !== '2p';
+    const precioNormal = p.com;
+    const cuLabel = tieneDesc
+      ? `<span style="text-decoration:line-through;color:var(--muted);font-size:10px">${fmt(precioNormal)}</span> <span style="color:var(--green);font-size:11px;font-weight:600">${fmt(precio)}</span>`
+      : `<span style="color:var(--cream);font-size:11px">${fmt(precio)}</span>`;
+    pbHtml+=`<div class="pb-row" style="grid-template-columns:2fr 1fr 1fr 1fr;">
+      <span class="pb-name">${p.n}</span>
+      <span class="pb-pzas">${pzas}</span>
+      <span>${cuLabel}</span>
+      <span class="pb-precio">${fmt(sub)}</span>
+    </div>`;
+  });
+  document.getElementById('pb-rows').innerHTML=pbHtml;
+  document.getElementById('pb-total-pzas').textContent=pbPzas;
+  document.getElementById('pb-total-cobras').textContent=fmt(pbTotal);
+
+  // 2 pagos detalle
+  const pb=document.getElementById('pagos-box');
+  if(modalidad==='2p'){
+    pb.style.display='block';
+    document.getElementById('pag-total').textContent=fmt(totalCobra);
+    document.getElementById('pag-1').textContent=fmt(totalCobra/2);
+    document.getElementById('pag-2').textContent=fmt(totalCobra/2);
+  } else pb.style.display='none';
+
+  // Resumen
+  document.getElementById('det-modal').textContent=modalLabel;
+  document.getElementById('det-pzas').textContent=totalPzas+' piezas';
+  document.getElementById('det-normal').textContent=fmt(totalNormal);
+  const dar=document.getElementById('det-ahorro-row');
+  if(ahorro>0){dar.style.display='flex';document.getElementById('det-ahorro').textContent=fmt(ahorro);}
+  else dar.style.display='none';
+  document.getElementById('det-total').textContent=fmt(totalCobra);
+
+  // Frases dinamicas según modalidad y monto
+  let tipHtml = '';
+  if(modalidad==='my'){
+    tipHtml = `<strong>🎉 ¡Felicidades, obtuviste precio mayoreo!</strong><br>
+    Lograste un descuento especial del ${descMy}% por tu compra. ¡Bienvenida al grupo de clientas especiales! Recuerda que entre más compres, mejor precio puedes obtener.`;
+  } else if(modalidad==='ct'){
+    tipHtml = `<strong>⚡ ¡Gracias por pagar de contado!</strong><br>
+    Obtuviste un ${descCt}% de descuento especial en tu compra. Todos los productos tienen garantía de calidad — disfrútalos con toda confianza.`;
+  } else {
+    // 2 pagos — mensaje según monto
+    if(totalNormal >= 1000){
+      tipHtml = `<strong>💜 ¡Excelente selección!</strong><br>
+      Recuerda ser puntual con tus dos pagos para que puedas seguir disfrutando de tus accesorios. Todos los productos tienen garantía de calidad. ¡Tú puedes!`;
+    } else {
+      tipHtml = `<strong>💜 ¡Bienvenida!</strong><br>
+      Recuerda ser puntual con tus dos pagos. Todos los productos tienen garantía de calidad — disfrútalos con toda confianza. ¡Mucho éxito!`;
+    }
+  }
+  document.getElementById('tip-final').innerHTML = tipHtml;
+
+  document.getElementById('formulario').style.display='none';
+  document.getElementById('resultados').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetear(){
+  document.getElementById('resultados').style.display='none';
+  document.getElementById('formulario').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Init
+agregarProd('aretes_vip',2);
+setModalidad('2p');
+</script>
+</body>
+</html>
